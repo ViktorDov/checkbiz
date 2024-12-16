@@ -5,7 +5,6 @@ import '../domain/criterion.dart';
 import '../domain/data_provider/shared_pref.dart';
 import '../domain/project.dart';
 import 'quiz_five.dart';
-import 'quiz_three.dart';
 
 class QuestionProjectFour extends StatefulWidget {
   const QuestionProjectFour({super.key});

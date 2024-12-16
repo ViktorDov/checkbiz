@@ -34,6 +34,12 @@ class _FazificationDataState extends State<FazificationData> {
               },
               child: const Text('Вивести дані'),
             ),
+            ElevatedButton(
+              onPressed: () {
+                // NeuralNetworkCalculator().calculateZ(data, weights);
+              },
+              child: const Text('Вивести дані'),
+            ),
           ],
         ),
       ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_checkbiz/domain/data_provider/shared_pref.dart';
-import 'package:flutter_checkbiz/screens/fazification_data.dart';
 
 import '../constants/questions.dart';
 import '../domain/criterion.dart';

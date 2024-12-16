@@ -67,8 +67,74 @@ class FaziBack {
     results.forEach((projectName, projectResults) {
       print('Results for $projectName:');
       projectResults.forEach((criterionName, membership) {
-        print('$criterionName: $membership');
+        print('$membership');
       });
     });
+  }
+}
+
+class NeuralNetworkCalculator {
+  Future<Map<String, Map<String, double>>> loadProjects() async {
+    final prefs = await SharedPreferences.getInstance();
+    Map<String, Map<String, double>> projects = {};
+
+    for (var p in ['P1', 'P2', 'P3', 'P4', 'P5']) {
+      String? data = prefs.getString(p);
+      if (data != null) {
+        final decoded = jsonDecode(data) as Map<String, dynamic>;
+        projects[p] =
+            decoded.map((key, value) => MapEntry(key, value.toDouble()));
+      }
+    }
+    return projects;
+  }
+
+  List<double> calculateZ(
+      Map<String, Map<String, double>> data, List<double> weights) {
+    List<double> zResults = [];
+
+    for (var p in ['P1', 'P2', 'P3', 'P4', 'P5']) {
+      final projectData = data[p]!;
+
+      // Weights for individual criteria
+      List<double> wGroup1 = weights.sublist(0, 2); // K_11, K_12
+      List<double> wGroup2 = weights.sublist(2, 7); // K_21 to K_25
+      List<double> wGroup3 = weights.sublist(7, 11); // K_31 to K_34
+
+      // Calculate Z1, Z2, Z3
+      double z1 = _calculateZ(projectData, ['K_11', 'K_12'], wGroup1);
+      double z2 = _calculateZ(
+          projectData, ['K_21', 'K_22', 'K_23', 'K_24', 'K_25'], wGroup2);
+      double z3 =
+          _calculateZ(projectData, ['K_31', 'K_32', 'K_33', 'K_34'], wGroup3);
+
+      zResults.addAll([z1, z2, z3]);
+    }
+    return zResults;
+  }
+
+  List<double> calculateW(List<double> zResults, List<double> groupWeights) {
+    List<double> wResults = [];
+    double weightSum = groupWeights.reduce((value, element) => value + element);
+
+    for (int i = 0; i < zResults.length; i += 3) {
+      double w1 = groupWeights[0] / weightSum * zResults[i];
+      double w2 = groupWeights[1] / weightSum * zResults[i + 1];
+      double w3 = groupWeights[2] / weightSum * zResults[i + 2];
+      wResults.addAll([w1, w2, w3]);
+    }
+    return wResults;
+  }
+
+  double _calculateZ(Map<String, double> projectData, List<String> keys,
+      List<double> weights) {
+    double numerator = 0.0;
+    double denominator = weights.reduce((value, element) => value + element);
+
+    for (int i = 0; i < keys.length; i++) {
+      numerator += (projectData[keys[i]] ?? 0.0) * weights[i];
+    }
+
+    return numerator / denominator;
   }
 }
